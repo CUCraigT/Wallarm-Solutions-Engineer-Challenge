@@ -6,6 +6,12 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 
 ---
 
+## Craig Thomas's Solutions
+This was the solution, as performed by Craig Thomas. While there are many possible deployments, I have laid out my architecture and overall deployment decisions, steps, and screenshots in the below document. Additionally, as I ran into hurdles or challenges, I documented those.
+
+## Overall Architecture
+![Architecture](images/architecture.png)
+
 ## 📂 Prerequisites
 **Desktop Environment**
 - I will be using Docker running on my local Mac (Mac silicon, so ARM64 architecture) for the various components of this deployment including (as detailed in the drawing)
@@ -17,7 +23,6 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
     - For testing against `https://httpbin.org`, I successfully got my external IP address
     - For testing against `http://172.0.0.1`, I successfully the IP of my Mac on the Docker Bridge network (in this case `172.17.0.1`)
  - For a simple test, I tested `GET` against `/ip`
-
  - I also looked at using mockapi.io, but httpbin works well, since the API is fully set up. mockapi.io is nice when building out a quick mock API
 **GoTestWAF**
 - I spun this up in a Docker container running in my desktop environment
@@ -57,8 +62,8 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 3. Initally run the Wallarm container (running on port 80, but exposed on port 81)
    - Using `6.3.0`, which is the version corresponding to latest on 20250709 @ 1600 ET
    - `docker run -d -e WALLARM_API_TOKEN='XXXXXXX' -e WALLARM_LABELS='group=<CDTGROUP>' -e NGINX_BACKEND='127.0.0.1' -e WALLARM_API_HOST='us1.api.wallarm.com' -p 81:80 wallarm/node:6.3.0`
-4. Node deployed to Wallarm succesfully (using Docker Run and basic ENV vars versus the config file, which I will look at later):
-   - ![alt text](images/node_deployed.png)
+4. Node deployed to Wallarm succesfully (using Docker Run and basic ENV vars versus the config file. This can provide additional options, but was not necessary for this exercise):
+   - ![Node Deployed](images/node_deployed.png)
 5. Tested using curl, and saw those items in the console
 6. Tested via Postman, I see the sessions in the Wallarm console, but it was not successfully proxying the connection through
    - After some testing, realized I needed to use the *internal* IP of the httpbin server
@@ -68,8 +73,8 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 7. So, I redeployed the Wallarm Node container, using the internal (172.17.0.2) address for the API
     - - `docker run -d -e WALLARM_API_TOKEN='XXXXXXX' -e WALLARM_LABELS='group=<CDTGROUP>' -e NGINX_BACKEND='172.17.0.2' -e WALLARM_API_HOST='us1.api.wallarm.com' -p 81:80 wallarm/node:6.3.0`
 8. Tested in Postman, and I got the result, and I see the session in Wallarm under `API Sessions`
-    - ![alt text](images/postman_html.png)
-    - ![alt text](images/api_sessions.png)
+    - ![Postman](images/postman_html.png)
+    - ![API Sessions](images/api_sessions.png)
 
 ***Filtering Node and API backend running succesfully!***
 
@@ -85,21 +90,22 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 4. Reports were generated, and these are added to my local directory, since I mapped the volume in the `docker run` command
 5. I opened up the reports, and they look complete. I put these in the `reports/monitoring` folder
 6. I also looked at the attacks in the Wallarm console, and they have increased significantly4
-    - ![alt text](images/newattacks.png)
+    - ![New Attacks](images/newattacks.png)
 
 ### Redeploy Wallarm in Blocking Mode
 1. Stop the Wallarm Container and redploy it using the `-e WALLARM_MODE='block'` flag
     - `docker run -d -e WALLARM_API_TOKEN='XXXXXXX' -e WALLARM_LABELS='group=<CDTGROUP>' -e NGINX_BACKEND='172.17.0.2' -e WALLARM_API_HOST='us1.api.wallarm.com' -e WALLARM_MODE=block -p 81:80 wallarm/node:6.3.0`
 
 **Important! Make sure you don't forget the label for the group. I left this off, and while traffic proxied through, it did not report into the mothership.**
+- When this did happen, I looked at the Node in the Wallarm GUI, and it showed red and that it had not checked in recently, so that was the flag that something was not working properly.
 
 2. Rerun the GoTestWAF tool, this time without the `--skipWAFBlockCheck` flag
     - It runs fine without that flag
 3. I now see attacks have been blocked
-    - ![alt text](images/blocked.png)
+    - ![Blocked Attacks](images/blocked.png)
 4. Report went from an F to an A+!
     - These reports are under `reports/blocking`
-    - ![alt text](images/blocking_report.png)
+    - ![Blocking Report Card](images/blocking_report.png)
 
 
 ### 4️⃣ Document Your Process
