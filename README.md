@@ -11,13 +11,13 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 - I will be using Docker running on my local Mac (Mac silicon, so ARM64 architecture) for the various components of this deployment including (as detailed in the drawing)
 **Backend Application/API endpoint**
 - I used Postman to connect to and test the HTTPBin container (also tested it against https://httpbin.org)
- - For the local container, I just ran it using `docker run -p 80:80 kennethreitz/httpbin`
- -  I was able to import the collection from Postman for quicker access to the various parts of the API (https://www.postman.com/postman/httpbin/documentation/0bjofuo/httpbin-org-current)
+    - For the local container, I just ran it using `docker run -p 80:80 kennethreitz/httpbin`
+    -  I was able to import the collection from Postman for quicker access to the various parts of the API (https://www.postman.com/postman/httpbin/documentation/0bjofuo/httpbin-org-current)
  - I set the `baseURL` variable to `https://httpbin.org` for testing on the web and `http://127.0.0.1` for testing my local API container
-  - For testing against `https://httpbin.org`, I successfully got my external IP address
-  - For testing against `http://172.0.0.1`, I successfully the IP of my Mac on the Docker Bridge network (in this case `172.17.0.1`)
+    - For testing against `https://httpbin.org`, I successfully got my external IP address
+    - For testing against `http://172.0.0.1`, I successfully the IP of my Mac on the Docker Bridge network (in this case `172.17.0.1`)
  - For a simple test, I tested `GET` against `/ip`
- *** INCLUDE SCREENSHOTS ***
+
  - I also looked at using mockapi.io, but httpbin works well, since the API is fully set up. mockapi.io is nice when building out a quick mock API
 **GoTestWAF**
 - I spun this up in a Docker container running in my desktop environment
@@ -27,7 +27,7 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 - I got the invite from Brandon, and set up my account in the Wallarm tenant: https://us1.my.wallarm.com/ and user account: `cdthomas23@gmail.com`
 
 ## 🚀 Task Breakdown
-### 1️⃣ Deploy a Wallarm Filtering Node
+### 1️⃣ Deploy a Wallarm Filtering Node &&
 ### 2️⃣ Set Up a Backend Origin
 - I am using the Docker NGINX-based Image (https://docs.wallarm.com/admin-en/installation-docker-en/)
 - Requirements:
@@ -83,10 +83,27 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
     - Reached out to Brandon, but in the meantime, I found several more options in the documentation
     - Added the `--skipWAFBlockCheck` flag, and the tool ran
 4. Reports were generated, and these are added to my local directory, since I mapped the volume in the `docker run` command
-5. I opened up the reports, and they look complete
+5. I opened up the reports, and they look complete. I put these in the `reports/monitoring` folder
 6. I also looked at the attacks in the Wallarm console, and they have increased significantly4
     - ![alt text](images/newattacks.png)
 
+### Redeploy Wallarm in Blocking Mode
+1. Stop the Wallarm Container and redploy it using the `-e WALLARM_MODE='block'` flag
+    - `docker run -d -e WALLARM_API_TOKEN='XXXXXXX' -e WALLARM_LABELS='group=<CDTGROUP>' -e NGINX_BACKEND='172.17.0.2' -e WALLARM_API_HOST='us1.api.wallarm.com' -e WALLARM_MODE=block -p 81:80 wallarm/node:6.3.0`
+
+**Important! Make sure you don't forget the label for the group. I left this off, and while traffic proxied through, it did not report into the mothership.**
+
+2. Rerun the GoTestWAF tool, this time without the `--skipWAFBlockCheck` flag
+    - It runs fine without that flag
+3. I now see attacks have been blocked
+    - ![alt text](images/blocked.png)
+4. Report went from an F to an A+!
+    - These reports are under `reports/blocking`
+    - ![alt text](images/blocking_report.png)
+
+
+### 4️⃣ Document Your Process
+1. Progress, screenshots, troubleshooting, and steps have been documented in this README.md file
 
 ----------
 
@@ -98,7 +115,6 @@ By the end of this evaluation, you should be able to:
 ✅ Deploy a Wallarm filtering node using a supported method of your choice.  
 ✅ Configure a backend origin to receive test traffic. (httpbin.org is also acceptable)  
 ✅ Use the **GoTestWAF** attack simulation tool to generate traffic.  
-
 ✅ Document the deployment and troubleshooting process.  
 ✅ Demonstrate proficiency in using **Wallarm's official documentation**.  
 
