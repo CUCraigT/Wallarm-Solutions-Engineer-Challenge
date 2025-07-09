@@ -6,7 +6,7 @@ Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercis
 
 ---
 
-## Craig Thomas's Solutions
+## Craig Thomas's Solution
 This was the solution, as performed by Craig Thomas. While there are many possible deployments, I have laid out my architecture and overall deployment decisions, steps, and screenshots in the below document. Additionally, as I ran into hurdles or challenges, I documented those.
 
 ## Overall Architecture
