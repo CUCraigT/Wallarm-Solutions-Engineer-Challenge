@@ -21,9 +21,11 @@ This was the solution, as performed by Craig Thomas. While there are many possib
     -  I was able to import the collection from Postman for quicker access to the various parts of the API (https://www.postman.com/postman/httpbin/documentation/0bjofuo/httpbin-org-current)
  - I set the `baseURL` variable to `https://httpbin.org` for testing on the web and `http://127.0.0.1` for testing my local API container
     - For testing against `https://httpbin.org`, I successfully got my external IP address
-    - For testing against `http://172.0.0.1`, I successfully the IP of my Mac on the Docker Bridge network (in this case `172.17.0.1`)
+    - For testing against `http://172.0.0.1`, I successfully the IP of my Mac on the Docker Bridge network (in this case `172.17.0.1` or `192.168.65.1`)
+    - For testing through the Wallarm proxy, I set `baseURL` to `http:/127.0.0.1:81`, as I was exposing that container on port 81
  - For a simple test, I tested `GET` against `/ip`
  - I also looked at using mockapi.io, but httpbin works well, since the API is fully set up. mockapi.io is nice when building out a quick mock API
+ - For this exercise, I did not set up HTTPs
 **GoTestWAF**
 - I spun this up in a Docker container running in my desktop environment
 **Documentation**
